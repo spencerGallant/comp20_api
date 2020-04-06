@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>COMP 20 - HW 8</title>
+  <meta charset="utf-8">
+  <style>
+    html, body {
+      background-color: lightblue;
+    }
+    .button {
+      box-shadow: 0 10px 12px 0 rgba(0, 0, 0, 0);
+      cursor: pointer;
+      border-radius: 25px;
+      background-color: #fff;
+      border-color: #000;
+      color: black;
+      font-weight: normal;
+      font-size: 30px;
+      width: 20%;
+    }
+
+    .button:hover {
+      box-shadow: 0 10px 12px 0 rgba(0, 0, 0, .3);
+      background-color: #000;
+      color: white;          
+    }
+
+    .inst {
+      box-shadow: 0 10px 12px 0 rgba(0, 0, 0, 0);
+      cursor: pointer;
+      border-radius: 25px;
+      background-color: #fff;
+      border-color: #000;
+      color: black;
+      font-weight: normal;
+      font-size: 12px;
+      width: 10%;
+    }
+
+    .inst:hover {
+      box-shadow: 0 10px 12px 0 rgba(0, 0, 0, .3);
+      background-color: #000;
+      color: white;          
+    }
+    .instructions {
+      color: black;
+      font-weight: normal;
+      font-size: 30px;
+    }
+    input {
+      width: 30%;
+      font-size: 30px;
+      text-align: center;
+    }
+    .image {
+      min-height: 400px;
+      max-height: 400px;
+    }
+
+    .text {
+      margin-left: 250px;
+      margin-right: 250px;
+      font-size: 20px;
+    }
+  </style>
+  <script>
+    numImage = 0;
+    previousWord = "image";
+    function getImage(default_image, retry) {
+      if(default_image) word = "image";
+      else if(retry) word = "retry";
+      else word = document.form1.nums.value;
+
+      if(previousWord == word) numImage = numImage + 1;
+      else numImage = 0;
+
+      previousWord = word;
+
+      request = new XMLHttpRequest();
+      request.open("GET", "https://pixabay.com/api/?key=15909759-b4111d3c13a2b72bb3717136f&q=" + word, true);
+
+      request.onreadystatechange = function() {
+        if (request.readyState == 4 && request.status == 200) {
+          result = request.responseText;
+          // alert(result);
+          imageData = JSON.parse(result);
+          if(imageData["totalHits"] == 0) { 
+            alert("There are no resaults for this search");
+            getImage(false, true);
+            return 0;
+          }
+          if(numImage == imageData["totalHits"]) {
+            alert("You have gone through all images with this word. Starting image results over.");
+            numImage = 0;
+          }
+          document.getElementById("image").innerHTML ="<img class='image' src='" + imageData["hits"][numImage]["webformatURL"] + "'>";
+        }
+        else if (request.readyState == 4 && request.status != 200) {
+          document.getElementById("image").innerHTML = "Something is wrong!  Check the logs to see where this went off the rails";
+        }
+        else if (request.readyState == 3) {
+          document.getElementById("image").innerHTML = "Too soon!  Try again";
+        }
+      }
+      request.send();
+    }
+
+    function instructions(){
+       document.getElementById("note1").innerHTML = 'Type in a word (ex: space) and click "Find Image" to find an image of that word';
+       document.getElementById("note2").innerHTML ='Click "Find Image" again to find a different photo of same word';
+       document.getElementById("note3").innerHTML = 'If there are no more images with that word you will get an alert and images will start at beginning';
+      document.getElementById("note4").innerHTML = 'Sometimes the API has a link to a bad image. If the image does not load try searching a different key word';
+    }
+  </script>
+</head>
+<body onload="getImage(true, false)">
+  <center>
+    <h1>Find an image for your project</h1>
+    <div id="image" class = "image"></div> <br/>
+    <!-- <input class="next" type="button" id="next" value="NEXT IMAGE" onclick="return nextImage();"><br/><br/> -->
+    <form name="form1" class="form">
+      <p class="instructions"> Type in one word that describes the image you are looking for: </p>
+      <script language="javascript">
+        document.write ('<input type="text" name="nums" id="nums" value="" placeholder="type a word">');
+      </script> 
+<!--       <br />
+      <br /><br /> -->
+      <input class = "button" type="button" value = "Find Image" onclick ="return getImage(false, false)"><br><br>
+      <input class = "inst" type="button" value = "Instructions" onclick ="return instructions()"><br>
+      <p class = "note" id = "note1"> </p>
+      <p class = "note" id = "note2">  </p>
+      <p class = "note" id = "note3">  </p>
+      <p class = "note" id = "note4">  </p>
+    </form>
+    <br><br><br><br>
+    <h2>Describe the API you selected and what it does</h2>
+    <p class = "text">
+      I used an API that finds images based on a key word. For example, type in "space" and it will find all images that relate to space. This API allows you to find out a lot of information about the image including the artist, the colors used, what type of image is it (illustration, photo, drawing etc.) and more.</p><br>
+    <h2>Cite the website where you found it</h2>
+    <p class = "text">
+      API website: <a href="https://pixabay.com/sk/service/about/api/">https://pixabay.com/sk/service/about/api//</a>
+    </p>
+    <h2>Describe the options you used for the API request</h2>
+    <p class = "text">
+      The most important option I used is the ability to get an image from a word or a "category." But, I also needed to use the information about how many search results there are per category. I used the word search in order to have users search a word and display a word relating to that image on the screen. Then, I needed to use the number of results to give the user an "alert" that if they clicked Find Image with the same word too many times the images will run out and so they will scroll to the beginning. I needed the number of results to make sure this happened properly.
+    </p>
+    <h2>Give two applications where this API would be helpful</h2>
+    <p class = "text">
+      1. Finding images for a project<br>
+      2. Knowing if someone is using an image you took without permission.
+    </p>
+  </center>
+  <br>
+  <br>
+  </body>
+  </html>
+
